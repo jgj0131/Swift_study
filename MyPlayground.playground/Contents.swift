@@ -1059,3 +1059,594 @@ moneyInMyPocket2.dollar = 10
 // 0.0달러에서 10.0달러로 변경되었습니다
 
 print(moneyInMyPocket2.won)
+
+/* 상속
+- 상속은 클래스, 프로토콜 등에서 가능
+- 열거형, 구조체는 상속이 불가능
+- Swift의 클래스는 단일상속으로, 다중상속을 지원하지 않는다.
+ class 이름: 상속받을 클래스 이름 {
+    구현부
+ }
+
+* 사용
+ - final 키워드를 사용하면 재정의(Override)를 방지할 수 있다.
+ - static 키워드를 사용해 타입 메서드를 만들면 재정의가 불가능
+ - class 키워드를 사용해 타입 메서드를 만들면 재정의가 가능
+ - class 앞애 final을 붙이면 static 키워드를 사용한것과 동일하게 동작
+ - override 키워드를 사용해 부모 클래스의 메서드를 재정의 할 수 있다.
+*/
+
+class Person2 { // 기반 클래스 Person2
+    var name: String = ""
+    
+    func selfIntroduce() {
+        print("저는 \(name)입니다")
+    }
+    
+    final func sayHello() { // final 키워드를 사용하여 재정의를 방지할 수 있다
+        print("hello")
+    }
+    
+    
+    
+    static func typeMethod() { // 타입 메서드, 재정의 불가 타입 메서드 - static
+        print("type method - static")
+    }
+    
+    class func classMethod() { // 재정의 가능 타입 메서드 - class
+        print("type method - class")
+    }
+    
+    // 메서드 앞의 `static`과 `final class`는 똑같은 역할을 한다
+    final class func finalCalssMethod() { // 재정의 가능한 class 메서드라도 final을 사용하면 재정의 할 수 없다
+        print("type method - final class")
+    }
+}
+
+class Student2: Person2 { // Person2을 상속받는 Student2
+    var major: String = ""
+    
+    override func selfIntroduce() {
+        print("저는 \(name)이고, 전공은 \(major)입니다")
+    }
+    
+    override class func classMethod() {
+        print("overriden type method - class")
+    }
+    
+    
+    // override static func typeMethod() {    } : 컴파일 에러 (static을 사용한 타입 메서드는 재정의 할 수 없다)
+    
+    // override func sayHello() {    } : 컴파일 에러 (final 키워드를 사용한 메서드, 프로퍼티는 재정의 할 수 없다)
+    // override class func finalClassMethod() {    }
+}
+let gukjin_class: Person2 = Person2()
+let gukjin_inheritance: Student2 = Student2()
+
+gukjin_class.name = "gukjin"
+gukjin_inheritance.name = "gukjin's junior"
+gukjin_inheritance.major = "Swift"
+
+gukjin_class.selfIntroduce()
+
+gukjin_inheritance.selfIntroduce()
+
+Person2.classMethod()
+// type method - class
+
+Person2.typeMethod()
+// type method - static
+
+Person2.finalCalssMethod()
+// type method - final class
+
+Student2.classMethod()
+// overriden type method - class
+
+Student2.typeMethod()
+// type method - static
+
+Student2.finalCalssMethod()
+// type method - final class
+
+/*
+이니셜라이저 (init) - 생성자
+디이니셜라이저 (deinit) - 소멸자
+*/
+
+/* 프로퍼티 초기값
+- Swifr의 모든 인스턴스는 초기화와 동시에 모든 프로퍼티에 유효한 값이 할당되어 있어야 한다.
+- 프로퍼티에 미리 기본갓을 할당해두면 인스턴스가 생성됨가 동시에 초기값을 지니게 된다.
+ */
+
+/* 예시
+class PersonA {
+    // 모든 저장 프로퍼티에 기본값 할당
+    var name: String = "unknown"
+    var age: Int = 0
+    var nickName: String = "nick"
+}
+
+let jason: PersonA = PersonA() // 인스턴스 생성
+
+// 기본값이 인스턴스가 지녀야 할 값과 맞지 않다면
+// 생성된 인스턴스의 프로퍼티에 각각 값 할당
+jason.name = "jason"
+jason.age = 30
+jason.nickName = "j"
+*/
+
+// 이니셜라이저(initializer) : 프로퍼티 초기값을 지정하기 어려운 경우, init을 통해 인스턴스가 가져야할 초기값을 전달할 수 있다
+class PersonB {
+    var name: String
+    var age: Int
+    var nickName: String
+    
+    // 이니셜라이저
+    init(name: String, age: Int, nickName: String) {
+        self.name = name
+        self.age = age
+        self.nickName = nickName
+    }
+}
+
+let hana: PersonB = PersonB(name: "hana", age: 20, nickName: "하나")
+
+/* 프로퍼티의 초기값이 꼭 필요 없을 때
+- 옵셔널을 사용
+- class 내부의 init을 사용할때는 convenience 키워드 사용
+*/
+class PersonC {
+    var name: String
+    var age: Int
+    var nickName: String?
+    
+    init(name: String, age: Int, nickName: String) {
+        self.name = name
+        self.age = age
+        self.nickName = nickName
+    }
+    
+    /* 위와 동일한 기능 수행
+    convenience init(name: String, age: Int, nickName: String) {
+        init(name: name, age: age)
+        self.nickName = nickName
+    } */
+    
+    init(name: String, age: Int) {
+        self.name = name
+        self.age = age
+    }
+}
+
+let jenny: PersonC = PersonC(name: "jenny", age: 10)
+let mike: PersonC = PersonC(name: "mike", age: 15, nickName: "m")
+
+// 암시적 추출 옵셔널은 인스턴스 사용에 꼭 필요하지만 초기값을 할당하지 않고자 할 때 사용
+class Puppy {
+    var name: String
+    var owner: PersonC!
+    
+    init(name: String) {
+        self.name = name
+    }
+    
+    func goOut() {
+        print("\(name)가 주인 \(owner.name)와 산책을 합니다")
+    }
+}
+
+let happy: Puppy = Puppy(name: "happy")
+// 강아지는 주인없이 산책하면 안돼요!
+//happy.goOut() // 주인이 없는 상태라 오류 발생
+happy.owner = jenny
+happy.goOut()
+// happy가 주인 jenny와 산책을 합니다
+
+/* 실패가능한 이니셜라이저
+- 이니셜라이저 매개변수로 전달되는 초기값이 잘못된 경우 인스턴스생성에 실패할 수 있다.
+- 인스턴스 생성에 실패하면 nil을 반환
+- 실패 가능한 이니셜라이저의 반환타입은 옵셔널
+- init?을 사용
+*/
+class PersonD {
+    var name: String
+    var age: Int
+    var nickName: String?
+    
+    init?(name: String, age: Int) {
+        if (0...120).contains(age) == false {
+            return nil
+        }
+        
+        if name.count == 0 {
+            return nil
+        }
+        
+        self.name = name
+        self.age = age
+    }
+}
+
+//let john: PersonD = PersonD(name: "john", age: 23)
+let john: PersonD? = PersonD(name: "john", age: 23)
+let joker: PersonD? = PersonD(name: "joker", age: 123)
+let batman: PersonD? = PersonD(name: "", age: 10)
+
+print(joker) // nil
+print(batman) // nil
+
+/* 디이니셜라이저(deinitializer)
+- deinit은 클래스의 인스턴스가 메모리에서 해제되는 시점에 호출
+- 인스턴스가 해제되는 시점에 해야할 일을 구현할 수 있다.
+- deinit은 매개변수를 지닐 수 없다.
+- 자동으로 호출되므로 직접 호출할 수 없다
+- 디이니셜라이저는 클래스 타입에만 구현할 수 있다.
+- 인스턴스가 메모리에서 해제되는 시점은 ARC(Automatic Reference Counting)의 규칙에 따라 결정
+*/
+class PersonE {
+    var name: String
+    var pet: Puppy?
+    var child: PersonC
+    
+    init(name: String, child: PersonC) {
+        self.name = name
+        self.child = child
+    }
+    
+    // 인스턴스가 메모리에서 해제되는 시점에 자동 호출
+    deinit {
+        if let petName = pet?.name {
+            print("\(name)가 \(child.name)에게 \(petName)를 인도합니다")
+            self.pet?.owner = child
+        }
+    }
+}
+
+var donald: PersonE? = PersonE(name: "donald", child: jenny)
+donald?.pet = happy
+donald = nil // donald 인스턴스가 더이상 필요없으므로 메모리에서 해제
+// donald가 jenny에게 happy를 인도합니다
+
+/* 옵셔널 체이닝
+- 옵셔널의 내부의 내부의 내부로 옵셔널이 연결되어 있을 때 유용
+- 매번 nil 확인을 하지 않고 최종적으로 원하는 값이 있는지 없는지 확인할 수 있다.
+*/
+
+
+class Person_optional { // 사람 클래스
+    var name: String
+    var job: String?
+    var home: Apartment?
+    
+    init(name: String) {
+        self.name = name
+    }
+}
+
+class Apartment { // 사람이 사는 집 클래스
+    var buildingNumber: String
+    var roomNumber: String
+    var `guard`: Person_optional?
+    var owner: Person_optional?
+    
+    init(dong: String, ho: String) {
+        buildingNumber = dong
+        roomNumber = ho
+    }
+}
+
+
+// 옵셔널 체이닝 사용
+let gukjin_in_the_house: Person_optional? = Person_optional(name: "gukjin")
+let apart: Apartment? = Apartment(dong: "101", ho: "202")
+let superman: Person_optional? = Person_optional(name: "superman")
+// 옵셔널 체이닝이 실행 후 결과값이 nil일 수 있으므로 결과 타입도 옵셔널
+
+// 만약 우리집의 경비원의 직업이 궁금하다면..?
+
+// 옵셔널 체이닝을 사용하지 않는다면...
+func guardJob(owner: Person_optional?) {
+    if let owner = owner {
+        if let home = owner.home {
+            if let `guard` = home.guard {
+                if let guardJob = `guard`.job {
+                    print("우리집 경비원의 직업은 \(guardJob)입니다")
+                } else {
+                    print("우리집 경비원은 직업이 없어요")
+                }
+            }
+        }
+    }
+}
+
+guardJob(owner: gukjin_in_the_house)
+
+// 옵셔널 체이닝을 사용한다면
+func guardJobWithOptionalChaining(owner: Person_optional?) {
+    if let guardJob = owner?.home?.guard?.job {
+        print("우리집 경비원의 직업은 \(guardJob)입니다")
+    } else {
+        print("우리집 경비원은 직업이 없어요")
+    }
+}
+
+guardJobWithOptionalChaining(owner: gukjin_in_the_house)
+// 우리집 경비원은 직업이 없어요
+
+gukjin_in_the_house?.home?.guard?.job // nil
+gukjin_in_the_house?.home = apart
+gukjin_in_the_house?.home // Optional(Apartment)
+gukjin_in_the_house?.home?.guard // nil
+
+// 경비원 할당
+gukjin_in_the_house?.home?.guard = superman
+gukjin_in_the_house?.home?.guard // Optional(Person)
+gukjin_in_the_house?.home?.guard?.name // superman
+gukjin_in_the_house?.home?.guard?.job // nil
+gukjin_in_the_house?.home?.guard?.job = "경비원"
+
+/* nil 병합 연산자
+- 중위 연산자이다 ??
+- O)ptional ?? Value
+- 옵셔널 값이 nil일 경우, 우측의 값을 반환
+- 띄어쓰기에 주의!
+*/
+var guardJob: String
+
+guardJob = gukjin_in_the_house?.home?.guard?.job ?? "슈퍼맨"
+print(guardJob) // 경비원
+
+gukjin_in_the_house?.home?.guard?.job = nil
+
+guardJob = gukjin_in_the_house?.home?.guard?.job ?? "슈퍼맨" //job이 nil이므로 우측의 "슈퍼맨"을 반환
+print(guardJob) // 슈퍼맨
+
+/* 타입 캐스팅
+- 인스턴스의 타입을 확인하는 용도
+- 클래스의 인스턴스를 부모 혹은 자식 클래스의 타입으로 사용할 수 있는지 확인하는 용도
+- is, as를 사용
+ * ex. let someDouble = Double(some) : 타입 캐스팅이 아니라 새로운 값을 생성하는것
+*/
+class Person_cast {
+    var name: String = ""
+    func breath() {
+        print("숨을 쉽니다")
+    }
+}
+
+class Student_cast: Person_cast {
+    var school: String = ""
+    func goToSchool() {
+        print("등교를 합니다")
+    }
+}
+
+class UniversityStudent_cast: Student_cast {
+    var major: String = ""
+    func goToMT() {
+        print("멤버쉽 트레이닝을 갑니다 신남!")
+    }
+}
+// 인스턴스 생성
+var yagom: Person_cast = Person_cast()
+var hanna: Student_cast = Student_cast()
+var jason: UniversityStudent_cast = UniversityStudent_cast()
+
+// 타입 확인 : is를 사용하여 타입 확인
+var result_cast: Bool
+
+result_cast = yagom is Person_cast // true
+result_cast = yagom is Student_cast // false
+result_cast = yagom is UniversityStudent_cast // false
+
+result_cast = hanna is Person_cast // true
+result_cast = hanna is Student_cast // true
+result_cast = hanna is UniversityStudent_cast // false
+
+result_cast = jason is Person_cast // true
+result_cast = jason is Student_cast // true
+result_cast = jason is UniversityStudent_cast // true
+
+if yagom is UniversityStudent_cast {
+    print("yagom은 대학생입니다")
+} else if yagom is Student_cast {
+    print("yagom은 학생입니다")
+} else if yagom is Person_cast {
+    print("yagom은 사람입니다")
+} // yagom은 사람입니다
+
+switch jason {
+case is Person_cast:
+    print("jason은 사람입니다")
+case is Student_cast:
+    print("jason은 학생입니다")
+case is UniversityStudent_cast:
+    print("jason은 대학생입니다")
+default:
+    print("jason은 사람도, 학생도, 대학생도 아닙니다")
+} // jason은 사람입니다
+
+switch jason {
+case is UniversityStudent_cast:
+    print("jason은 대학생입니다")
+case is Student_cast:
+    print("jason은 학생입니다")
+case is Person_cast:
+    print("jason은 사람입니다")
+default:
+    print("jason은 사람도, 학생도, 대학생도 아닙니다")
+} // jason은 대학생입니다
+
+/*업 캐스팅(Up Casting)
+- as를 사용하여 부모클래스의 인스턴스로 사용할 수 있도록 컴파일러에게 타입정보를 전환
+- Any 혹은 AnyObject로도 타입정보를 변환할 수 있다.
+- 암시적으로 처리되므로 꼭 필요한 경우가 아니라면 생략해도 무방
+ */
+// UniversityStudent_cast 인스턴스를 생성하여 Person_cast 행세를 할 수 있도록 업 캐스팅
+var mikael: Person_cast = UniversityStudent_cast() as Person_cast
+
+var jem: Student_cast = Student_cast()
+//var jem: UniversityStudent_cast = Person_cast() as UniversityStudent_cast // 컴파일 오류
+
+// UniversityStudent_cast 인스턴스를 생성하여 Any 행세를 할 수 있도록 업 캐스팅
+var mina: Any = Person_cast() // as Any 생략가능
+
+/* 다운 캐스팅(Down Casting)
+- as? 또는 as!를 사용하여 자식 클래스의 인스턴스로 사용할 수 있도록 컴파일러에게 인스턴스의 타입정보를 전환
+ */
+
+/* 조건부 다운 캐스팅
+- as?를 사용
+- 캐스팅에 실패하면, 즉 캐스팅하려는 타입에 부합하지 않는 인스턴스라면 nil을 반환하기 때문에 결과의 타입은 옵셔널 타입
+*/
+var optionalCasted: Student_cast?
+
+optionalCasted = mikael as? UniversityStudent_cast
+optionalCasted = jem as? UniversityStudent_cast // nil
+optionalCasted = mina as? UniversityStudent_cast // nil
+optionalCasted = mina as? Student_cast // nil
+
+/* 강제 다운 캐스팅
+- as!를 사용
+- 캐스팅에 실패하면, 즉 캐스팅하려는 타입에 부합하지 않는 인스턴스라면 런타임 오류가 발생
+- 캐스팅에 성공하면 옵셔널이 아닌 일반 타입을 반환
+ */
+var forcedCasted: Student_cast
+
+optionalCasted = mikael as! UniversityStudent_cast
+//optionalCasted = jem as! UniversityStudent // 런타임 오류
+//optionalCasted = mina as! UniversityStudent // 런타임 오류
+//optionalCasted = mina as! Student // 런타임 오류
+
+// 활용
+func doSomethingWithSwitch(someone: Person_cast) {
+    switch someone {
+    case is UniversityStudent_cast:
+        (someone as! UniversityStudent_cast).goToMT()
+    case is Student_cast:
+        (someone as! Student_cast).goToSchool()
+    case is Person_cast:
+        (someone as! Person_cast).breath()
+    }
+}
+
+doSomethingWithSwitch(someone: mikael as Person_cast) // 멤버쉽 트레이닝을 갑니다 신남!
+doSomethingWithSwitch(someone: mikael) // 멤버쉽 트레이닝을 갑니다 신남!
+doSomethingWithSwitch(someone: jem) // 등교를 합니다
+doSomethingWithSwitch(someone: yagom) // 숨을 쉽니다
+
+
+func doSomething(someone: Person_cast) {
+    if let universityStudent = someone as? UniversityStudent_cast {
+        universityStudent.goToMT()
+    } else if let student = someone as? Student_cast {
+        student.goToSchool()
+    } else if let person = someone as? Person_cast {
+        person.breath()
+    }
+}
+
+doSomething(someone: mikael as Person_cast) // 멤버쉽 트레이닝을 갑니다 신남!
+doSomething(someone: mikael) // 멤버쉽 트레이닝을 갑니다 신남!
+doSomething(someone: jem) // 등교를 합니다
+doSomething(someone: yagom) // 숨을 쉽니다
+
+/* Assertion
+- assert(_:_:file:line:) 함수를 사용
+- assert 함수는 디버깅 모드에서만 동작
+- 배포하는 애플리케이션에서는 제외
+- 예상했던 조건의 검증을 위하여 사용
+*/
+var someInt: Int = 0
+
+// 검증 조건과 실패시 나타날 문구를 작
+// 검증 조건에 부합하므로 지나간다
+assert(someInt == 0, "someInt != 0")
+
+someInt = 1
+//assert(someInt == 0) // 동작 중지, 검증 실패
+//assert(someInt == 0, "someInt != 0") // 동작 중지, 검증 실패
+// assertion failed: someInt != 0: file guard_assert.swift, line 26
+
+
+func functionWithAssert(age: Int?) {
+    
+    assert(age != nil, "age == nil")
+    
+    assert((age! >= 0) && (age! <= 130), "나이값 입력이 잘못되었습니다")
+    print("당신의 나이는 \(age!)세입니다")
+}
+
+functionWithAssert(age: 50)
+//functionWithAssert(age: -1) // 동작 중지, 검증 실패
+//functionWithAssert(age: nil) // 동작 중지, 검증 실패
+// * assert(_:_:file:line:)와 같은 역할을 하지만 실제 배포 환경에서도 동작하는 precondition(_:_:file:line:) 함수도 있습니다. 함께 살펴보세요.
+
+/* guard(빠른종료- Early Exit)
+- guard를 사용하여 잘못된 값의 전달 시 특정 실행구문을 빠르게 종료
+- 디버깅 모드 뿐만 아니라 어떤 조건에서도 동작
+- guard의 else 블럭 내부에는 특정 코드블럭을 종료하는 지시어(return, break 등)가 꼭 있어야 한다
+- 타입 캐스팅, 옵셔널과도 자주 사용
+- 그 외에도 단순 조건 판단 후 빠르게 종료할 때도 용이
+*/
+func functionWithGuard(age: Int?) {
+    
+    guard let unwrappedAge = age,
+        unwrappedAge < 130,
+        unwrappedAge >= 0 else {
+            print("나이값 입력이 잘못되었습니다")
+            return
+    }
+    
+    print("당신의 나이는 \(unwrappedAge)세입니다")
+}
+
+var count = 1
+
+while true {
+    guard count < 3 else {
+        break
+    }
+    print(count)
+    count += 1
+}
+// 1
+// 2
+
+func someFunction(info: [String: Any]) {
+    guard let name = info["name"] as? String else {
+        return
+    }
+    
+    guard let age = info["age"] as? Int, age >= 0 else {
+        return
+    }
+    
+    print("\(name): \(age)")
+}
+
+someFunction(info: ["name": "jenny", "age": "10"])
+someFunction(info: ["name": "mike"])
+someFunction(info: ["name": "yagom", "age": 10]) // yagom: 10
+    
+// ** if let / gurad 를 이용한 옵셔널 바인딩 비교 **
+
+// 1. if let 옵셔널 바인딩
+/*
+if let unwrapped: Int = someValue {
+    do something
+    unwrapped = 3
+}
+ */
+// if 구문 외부에서는 unwrapped 사용이 불가능
+// unwrapped = 5
+
+// 2. guard 옵셔널 바인딩
+// gaurd 구문 이후에도 unwrapped 사용 가능
+/*
+guard let unwrapped: Int = someValue else {
+    return
+}
+unwrapped = 3
+*/
