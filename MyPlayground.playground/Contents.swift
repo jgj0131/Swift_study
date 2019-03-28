@@ -349,3 +349,372 @@ while integers.count > 1 { // 조건부에 소괄호로 묶어도 되고 안 묶
 repeat {
     integers.removeLast()
 } while integers.count > 0
+
+/* 옵셔널(Optional) : 값이 있을 수도 있고 없을수도 있음
+ - 이유 : nil의 가능성을 명시적으로 표현, 예외 상황을 최소화 하는 안전한 코딩을 위해
+ - 타입 뒤에 물음표로 표현 다만 띄워쓰면 안됨
+ - ! (암시적 추출 옵셔널) :
+ - ? (일반적인 옵셔널) : 기존 변수처럼 사용불가
+*/
+
+// 옵셔널 문법과 선언 = enum + general
+/*enum Optional<Wrapped>: ExpressibleByNiliteral {
+    case none
+    case some(Wrapped)
+}
+*/
+//let optionalValue: Optional<Int> = nil : 에러발생
+let optionalValue: Int? = nil
+
+// Implicitly Unwrapped Optional
+var implicitlyUnwrappedOptionalValue: Int! = 100
+
+switch implicitlyUnwrappedOptionalValue {
+case .none:
+    print("This Optional variable is nil")
+case .some(let value):
+    print("Value is \(value)")
+}
+
+// 느낌표(!)를 이용한 암시적 추출 옵셔널
+// 기존 변수처럼 사용 가능
+implicitlyUnwrappedOptionalValue = implicitlyUnwrappedOptionalValue + 1
+
+// nil 할당 가능
+implicitlyUnwrappedOptionalValue = nil
+
+// 잘못된 접근으로 인한 런타임 오류 발생 (nil에 +1을 했으므로)
+//implicitlyUnwrappedOptionalValue = implicitlyUnwrappedOptionalValue + 1
+
+// 물음표(?)를 이용한 일반적인 옵셔널
+var optionalValue2: Int? = 100
+
+switch optionalValue {
+case .none:
+    print("This Optional variable is nil")
+case .some(let value):
+    print("Value is \(value)")
+}
+
+// nil 할당 가능
+optionalValue2 = nil
+
+// 기존 변수처럼 사용불가 - 옵셔널과 일반 값은 다른 타입이므로 연산불가
+//optionalValue = optionalValue + 1
+
+/* 옵셔널 추출 : 옵셔널에 들어있는 값을 사용하기 위해 꺼내오는것
+ - 옵셔널 바인딩 : nil 체크 + 안전한 추출, if-let 방식 사용
+ */
+func printName(_ name: String) {
+    print(name)
+}
+
+var myName: String? = nil
+
+//printName(myName)
+// 전달되는 값의 타입이 다르기 때문에 컴파일 오류발생
+
+if let name: String = myName {
+    printName(name)
+} else {
+    print("myName == nil")
+}
+
+
+var yourName: String! = nil
+
+if let name: String = yourName {
+    printName(name)
+} else {
+    print("yourName == nil")
+}
+
+// name 상수는 if-let 구문 내에서만 사용가능
+// 상수 사용범위를 벗어났기 때문에 컴파일 오류 발생
+//printName(name)
+
+
+// ,를 사용해 한 번에 여러 옵셔널을 바인딩 할 수 있다
+// 모든 옵셔널에 값이 있을 때만 동작합니다
+myName = "gukjin"
+yourName = nil
+
+if let name = myName, let friend = yourName {
+    print("\(name) and \(friend)")
+}
+// yourName이 nil이기 때문에 실행 안 됨
+yourName = "hana"
+
+if let name = myName, let friend = yourName {
+    print("\(name) and \(friend)")
+}
+
+// 강제 추출 : 만약 값이 없을 경우(nil) 런타임 오류가 발생하기 때문에 추천하는 방식은 아님
+var myName2: String? = "gukjin"
+var youName2: String! = nil
+
+
+printName(myName!) // yagom
+myName2 = nil
+
+//print(myName!)
+// 강제추출시 값이 없으므로 런타임 오류 발생
+youName2 = nil
+
+//printName(yourName)
+// nil 값이 전달되기 때문에 런타임 오류발생
+var name: String? = "gukjin"
+print(name!)
+var name2: String! = "gukjin"
+print(name2!)
+
+/* 구조체
+ - 값(value) 타입
+ - 타입이름은 대문자를 사용하여 정의
+ struct 이름 {
+    구현부
+ }
+ */
+struct Sample {
+    var mutableProperty: Int = 100 // 가변 프로퍼티(값 변경 가능)
+    let immutableProperty: Int = 100 // 불변 프로퍼티(값 변경 불가능)
+    
+    static var typeProperty: Int = 100 // 타입 프로퍼티(static 키워드 사용 : 타입 자체가 사용하는 프로퍼티)
+    
+    func instanceMethod() { // 인스턴스 메서드(인스턴스가 사용하는 메서드)
+        print("instance method")
+    }
+    
+    static func typeMethod() { // 타입 메서드(static 키워드 사용 : 타입 자체가 사용하는 메서드)
+        print("type method")
+    }
+}
+
+var mutable: Sample = Sample() // 가변 인스턴스 생성
+
+mutable.mutableProperty = 200
+// 불변 프로퍼티는 인스턴스 생성 후 수정할 수 없다
+//mutable.immutableProperty = 200 : 컴파일 오류 발생(불변 프로퍼티 수정)
+
+let immutable: Sample = Sample() // 불변 인스턴스
+// 불변 인스턴스는 아무리 가변 프로퍼티라도 인스턴스 생성 후에 수정할 수 없다
+
+/* 컴파일 오류 발생 (불변 인스턴스 수정)
+immutable.mutableProperty = 200
+immutable.immutableProperty = 200
+*/
+
+Sample.typeProperty = 300 // 타입 프로퍼티
+Sample.typeMethod() // 타입 메서드
+// 인스턴스에서는 타입 프로퍼티나 타입 메서드를 사용할 수 없다
+
+/* 컴파일 오류 발생 (타입 프로퍼티를 인스턴스에서 사용하려고 함)
+mutable.typeProperty = 400
+mutable.typeMethod()
+*/
+
+struct Student {
+    var name: String = "unknown" // 가변 프로퍼티
+    var `class`: String = "Swift" // 키워드도 `로 묶어주면 이름으로 사용할 수 있습니다
+    
+    static func selfIntroduce() { // 타입 메서드
+        print("학생타입입니다")
+    }
+    
+    func selfIntroduce() { // 인스턴스 메서드
+        print("저는 \(self.class)반 \(name)입니다") // self는 인스턴스 자신을 지칭, 몇몇 경우를 제외한 사용은 선택사항
+    }
+}
+
+Student.selfIntroduce() // 타입 메서드 사용
+
+var aiden: Student = Student() // 가변 인스턴스 생성
+aiden.name = "국진"
+aiden.class = "스위프트"
+aiden.selfIntroduce()
+
+let jina: Student = Student() // 불변 인스턴스 생성
+// 불변 인스턴스이므로 프로퍼티 값 변경 불가
+
+// 컴파일 오류 발생
+//jina.name = "jina"
+jina.selfIntroduce()
+
+/* 클래스(class)
+ - 타입 이름은 대문자를 사용하여 정의
+ - Swift 클래스는 다중 상속이 안됨
+ - 구조체는 값(value)타입, 클래스는 참조(reference)타입
+ class 이름 {
+    구현부
+ }
+ */
+class SampleClass {
+    var mutableProperty: Int = 100 // 가변 프로퍼티
+    let immutableProperty: Int = 100 // 불변 프로퍼티
+    static var typeProperty: Int = 100 // 타입 프로퍼티
+    
+    func instanceMethod() { // 인스턴스 메서드
+        print("instance method")
+    }
+    
+    // 타입 메서드
+    static func typeMethod() { // 상속시 재정의 불가 타입 메서드 - static
+        print("type method - static")
+    }
+    
+    class func classMethod() { // 상속시 재정의 가능 타입 메서드 - class
+        print("type method - class")
+    }
+}
+
+var mutableReference: SampleClass = SampleClass() // 인스턴스 생성 - 참조정보 수정 가능
+
+mutableReference.mutableProperty = 200
+
+// 불변 프로퍼티는 인스턴스 생성 후 수정할 수 없다
+//mutableReference.immutableProperty = 200 : 컴파일 오류 발생 (불변 프로퍼티 수정)
+
+let immutableReference: SampleClass = SampleClass() // 인스턴스 생성 - 참조정보 수정 불가
+// 클래스의 인스턴스는 참조 타입이므로 let으로 선언되었더라도 인스턴스 프로퍼티의 값 변경이 가능
+
+immutableReference.mutableProperty = 200
+// 다만 참조정보를 변경할 수는 없다
+
+//immutableReference = mutableReference : 컴파일 오류 발생 (참조 정보 변경)
+
+//immutableReference.immutableProperty = 200 : 컴파일 오류 발생 (참조 타입이라도 불변 인스턴스는 인스턴스 생성 후에 수정할 수 없다)
+
+Sample.typeProperty = 300 // 타입 프로퍼티
+Sample.typeMethod() // 타입 메서드
+
+// 인스턴스에서는 타입 프로퍼티나 타입 메서드를 사용할 수 없다
+
+/* 컴파일 오류 발생 (인스턴스에서 타입 프로퍼티나 메서드 사용)
+mutableReference.typeProperty = 400
+mutableReference.typeMethod()
+*/
+class StudentClass {
+    var name: String = "unknown" // 가변 프로퍼티
+    var `class`: String = "Swift" // 키워드도 `로 묶어주면 이름으로 사용할 수 있다
+    
+    class func selfIntroduce() { // 타입 메서드
+        print("학생타입입니다")
+    }
+    
+    func selfIntroduce() { // 인스턴스 메서드
+        print("저는 \(self.class)반 \(name)입니다") // self는 인스턴스 자신을 지칭, 몇몇 경우를 제외한 사용은 선택사항
+    }
+}
+
+
+Student.selfIntroduce() // 타입 메서드 사용
+
+var aiden_class: StudentClass = StudentClass() // 인스턴스 생성
+aiden_class.name = "국진"
+aiden_class.class = "스위프트"
+aiden_class.selfIntroduce()   // 저는 스위프트반 yagom입니다
+
+// 인스턴스 생성
+let jina_class: StudentClass = StudentClass()
+jina_class.name = "jina"
+jina_class.selfIntroduce() // 저는 Swift반 jina입니다
+
+/* 열거형 (enum)
+ - 유사한 종류의 여러 값을 한 곳에 모아서 정의한 것
+ - enum 자체가 하나의 데이터 타입으로, 대문자를 사용하여 이름을 정의
+ - 각 case는 소문자로 정의
+ - 각 case는 그 자체가 고유의 값
+ - 각 case는 한 줄에 개별로도, 한 줄에 여러개도 정의할 수 있다
+enum 이름 {
+ case 이름1
+ case 이름2
+ case 이름3, 이름4, 이름5
+ // ...
+}
+*/
+enum Weekday {
+    case mon
+    case tue
+    case wed
+    case thu, fri, sat, sun
+}
+
+var day: Weekday = Weekday.mon // 열거형 타입과 케이스를 모두 사용해도 됨
+day = .tue // 타입이 명확하다면 .케이스 처럼 표현해도 무방
+print(day)
+
+// switch의 비교값에 열거형 타입이 위치할 때, 모든 열거형 케이스를 포함한다면 default를 작성할 필요가 없다
+switch day {
+case .mon, .tue, .wed, .thu:
+    print("평일입니다")
+case Weekday.fri:
+    print("불금 파티!!")
+case .sat, .sun:
+    print("신나는 주말!!")
+}
+
+/* 원시값
+ - C언어의 enum처럼 정수값을 가질 수 있다
+ - rawValue는 case별로 각각 다른 값을 가져야 한다
+ - 자동으로 1이 증가된 값이 할당
+ - rawValue를 반드시 지닐 필요가 없다면 굳이 만들지 않아도 된다
+ */
+enum Fruit: Int {
+    case apple = 0
+    case grape = 1
+    case peach // 자동으로 2가 할당
+    // case mango = 0 : 컴파일 에러 (원시값이 0이 존재)
+}
+
+print("Fruit.peach.rawValue == \(Fruit.peach.rawValue)")
+
+// 정수 타입 뿐만 아니라, Hashable 프로토콜을 따르는 모든 타입을 원시값의 타입으로 지정 할 수 있다.
+enum School: String {
+    case elementary = "초등"
+    case middle = "중등"
+    case high = "고등"
+    case university // 문자형은 예측이 어려우므로 값이 할당되지 않음
+}
+
+print("School.middle.rawValue == \(School.middle.rawValue)")
+
+print("School.university.rawValue == \(School.university.rawValue)")
+// 열거형의 원시값 타입이 String일 때, 원시값이 지정되지 않았다면 case의 이름을 원시값으로 사용
+
+/* 원시값을 통한 초기화
+- rawvalue를 통해 초기화 할 수 있다
+- rawValue가 case에 해당하지 않을 수 있으므로, rawValue를 통해 초기화 한 인스턴스는 옵셔널 타입이다
+*/
+
+//let apple: Fruit = Fruit(rawValue: 0) : 컴파일 에러 (rawValue를 통해 초기화 한 열거형 값은 옵셔널 타입이므로 Fruit 타입이 아니다)
+let apple: Fruit? = Fruit(rawValue: 0)
+
+// if let 구문을 사용하면 rawValue에 해당하는 케이스를 곧바로 사용할 수 있다
+if let orange: Fruit = Fruit(rawValue: 5) {
+    print("rawValue 5에 해당하는 케이스는 \(orange)입니다")
+} else {
+    print("rawValue 5에 해당하는 케이스가 없습니다")
+}
+
+// 열거형에 메서드도 추가할 수 있다
+enum Month {
+    case dec, jan, feb
+    case mar, apr, may
+    case jun, jul, aug
+    case sep, oct, nov
+    
+    func printMessage() {
+        switch self {
+        case .mar, .apr, .may:
+            print("따스한 봄~")
+        case .jun, .jul, .aug:
+            print("여름 더워요~")
+        case .sep, .oct, .nov:
+            print("가을은 독서의 계절!")
+        case .dec, .jan, .feb:
+            print("추운 겨울입니다")
+        }
+    }
+}
+
+Month.mar.printMessage()
