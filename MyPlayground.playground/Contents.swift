@@ -1558,16 +1558,16 @@ doSomething(someone: yagom) // 숨을 쉽니다
 - 배포하는 애플리케이션에서는 제외
 - 예상했던 조건의 검증을 위하여 사용
 */
-var someInt: Int = 0
+var someInt2: Int = 0
 
 // 검증 조건과 실패시 나타날 문구를 작
 // 검증 조건에 부합하므로 지나간다
-assert(someInt == 0, "someInt != 0")
+assert(someInt2 == 0, "someInt != 0")
 
-someInt = 1
-//assert(someInt == 0) // 동작 중지, 검증 실패
-//assert(someInt == 0, "someInt != 0") // 동작 중지, 검증 실패
-// assertion failed: someInt != 0: file guard_assert.swift, line 26
+someInt2 = 1
+//assert(someInt2 == 0) // 동작 중지, 검증 실패
+//assert(someInt2 == 0, "someInt2 != 0") // 동작 중지, 검증 실패
+// assertion failed: someInt2 != 0: file guard_assert.swift, line 26
 
 
 func functionWithAssert(age: Int?) {
@@ -1649,4 +1649,542 @@ guard let unwrapped: Int = someValue else {
     return
 }
 unwrapped = 3
+*/
+/* 프로토콜
+- 프로토콜(Protocol) 은 특정 역할을 수행하기 위한 메서드, 프로퍼티, 기타 요구사항 등의 청사진을 정의
+- 구조체, 클래스, 열거형은 프로토콜을 채택(Adopted) 해서 특정 기능을 수행하기 위한 프로토콜의 요구사항을 실제로 구현할 수 있다.
+- 어떤 프로토콜의 요구사항을 모두 따르는 타입은 그 프로토콜을 준수한다(Conform) 고 표현
+- 타입에서 프로토콜의 요구사항을 충족시키려면 프로토콜이 제시하는 청사진의 기능을 모두 구현해야 한다. 즉, 프로토콜은 기능을 정의하고 제시 할 뿐이지 스스로 기능을 구현하지는 않는다.
+
+ protocol 프로토콜 이름 {
+ /* 정의부 */
+ }
+*/
+
+/* 구현 <<프로퍼티 요구>>
+- 프로퍼티 요구는 항상 var 키워드를 사용
+- get은 읽기만 가능해도 상관 없다는 뜻이며 get과 set을 모두 명시하면 읽기 쓰기 모두 가능한 프로퍼티여야 한다
+*/
+protocol Talkable {
+    
+    // 프로퍼티 요구
+    var topic: String { get set }
+    var language: String { get }
+    
+    // 메서드 요구
+    func talk()
+    
+    // 이니셜라이저 요구
+    init(topic: String, language: String)
+}
+/* 프로토콜 채택 및 준수 <<프로토콜 채택>>
+타입명: 프로토콜 이름
+*/
+
+struct Person_protocol: Talkable { // Person 구조체는 Talkable 프로토콜을 채택
+    // 프로퍼티 요구 준수
+    var topic: String
+    let language: String
+    
+    // 읽기전용 프로퍼티 요구는 연산 프로퍼티로 대체가 가능
+    //    var language: String { return "한국어" }
+    
+    // 물론 읽기, 쓰기 프로퍼티도 연산 프로퍼티로 대체할 수 있다
+    //    var subject: String = ""
+    //    var topic: String {
+    //        set {
+    //            self.subject = newValue
+    //        }
+    //        get {
+    //            return self.subject
+    //        }
+    //    }
+    
+    // 메서드 요구 준수
+    func talk() {
+        print("\(topic)에 대해 \(language)로 말합니다")
+    }
+    
+    // 이니셜라이저 요구 준수
+    init(topic: String, language: String) {
+        self.topic = topic
+        self.language = language
+    }
+}
+//프로퍼티 요구는 다양한 방법으로 해석, 구현 할 수 있다.
+struct Person_protocol2: Talkable {
+    var subject: String = ""
+    
+    // 프로퍼티 요구는 연산 프로퍼티로 대체가 가능
+    var topic: String {
+        set {
+            self.subject = newValue
+        }
+        get {
+            return self.subject
+        }
+    }
+    
+    var language: String { return "한국어" }
+    
+    func talk() {
+        print("\(topic)에 대해 \(language)로 말합니다")
+    }
+    
+    init(topic: String, language: String) {
+        self.topic = topic
+    }
+}
+
+/* 프로토콜 상속
+- 프로토콜은 하나 이상의 프로토콜을 상속받아 기존 프로토콜의 요구사항보다 더 많은 요구사항을 추가할 수 있다.
+- 프로토콜 상속 문법은 클래스의 상속 문법과 유사하지만, 프로토콜은 클래스와 다르게 다중상속이 가능
+
+protocol 프로토콜 이름: 부모 프로토콜 이름 목록 {
+    /* 정의부 */
+}
+*/
+
+protocol Readable {
+    func read()
+}
+protocol Writeable {
+    func write()
+}
+protocol ReadSpeakable: Readable {
+    func speak()
+}
+protocol ReadWriteSpeakable: Readable, Writeable {
+    func speak()
+}
+
+struct SomeType: ReadWriteSpeakable {
+    func read() {
+        print("Read")
+    }
+    func write() {
+        print("Write")
+    }
+    func speak() {
+        print("Speak")
+    }
+}
+
+/* 클래스 상속과 프로토콜
+- 클래스에서 상속과 프로토콜 채택을 동시에 하려면 상속받으려는 클래스를 먼저 명시하고 그 뒤에 채택할 프로토콜 목록을 작성
+*/
+class SuperClass: Readable {
+    func read() { }
+}
+
+class SubClass: SuperClass, Writeable, ReadSpeakable {
+    func write() { }
+    func speak() { }
+}
+
+
+/* 프로토콜 준수 확인
+- is, as 연산자를 사용해서 인스턴스가 특정 프로토콜을 준수하는지 확인할 수 있다.
+ */
+let sup: SuperClass = SuperClass()
+let sub: SubClass = SubClass()
+
+var someAny_protocol: Any = sup
+someAny_protocol is Readable // true
+someAny_protocol is ReadSpeakable // false
+
+someAny_protocol = sub
+someAny_protocol is Readable // true
+someAny_protocol is ReadSpeakable // true
+
+someAny_protocol = sup
+
+if let someReadable: Readable = someAny_protocol as? Readable {
+    someReadable.read()
+} // read
+
+if let someReadSpeakable: ReadSpeakable = someAny_protocol as? ReadSpeakable {
+    someReadSpeakable.speak()
+} // 동작하지 않음
+
+someAny_protocol = sub
+
+if let someReadable: Readable = someAny_protocol as? Readable {
+    someReadable.read()
+} // read
+
+/* 익스텐션
+- 익스텐션(Extension) 은 스위프트의 강력한 기능 중 하나
+- 익스텐션은 구조체, 클래스, 열거형, 프로토콜 타입에 새로운 기능을 추가 할 수 있는 기능
+- 기능을 추가하려는 타입의 구현된 소스 코드를 알지 못하거나 볼 수 없다 해도, 타입만 알고 있다면 그 타입의 기능을 확장할 수도 있다.
+
+ <<스위프트의 익스텐션이 타입에 추가할 수 있는 기능>>
+- 연산 타입 프로퍼티 / 연산 인스턴스 프로퍼티
+- 타입 메서드 / 인스턴스 메서드
+- 이니셜라이저
+- 서브스크립트
+- 중첩 타입
+- 특정 프로토콜을 준수할 수 있도록 기능 추가
+
+ ** 익스텐션은 타입에 새로운 기능을 추가할 수는 있지만, 기존에 존재하는 기능을 재정의할 수는 없다.
+
+ <<클래스의 상속과 익스텐션 비교>>
+ 이 둘은 비슷해보이지만 실제 성격은 많이 다르다.
+클래스의 상속은 클래스 타입에서만 가능하지만 익스텐션은 구조체, 클래스, 프로토콜 등에 적용이 가능하다. 또 클래스의 상속은 특정 타입을 물려받아 하나의 새로운 타입을 정의하고 추가 기능을 구현하는 수직 확장이지만, 익스텐션은 기존의 타입에 기능을 추가하는 수평 확장이다. 또, 상속을 받으면 기존 기능을 재정의할 수 있지만, 익스텐션은 재정의할 수 없다는 것도 큰 차이 중 하나이다. 상황과 용도에 맞게 상속과 익스텐션을 선택하여 사용하면 된다.
+        상속      익스텐션
+확장    수직 확장    수평 확장
+사용    클래스 타입   클래스, 구조체, 프로토콜, 제네릭 등 모든 타입
+재정의    가능        불가능
+
+ << 익스텐션 활용>>
+익스텐션을 사용하는 대신 원래 타입을 정의한 소스에 기능을 추가하는 방법도 있겠지만, 외부 라이브러리나 프레임워크를 가져다 썼다면 원본 소스를 수정하지 못힌다. 이처럼 외부에서 가져온 타입에 내가 원하는 기능을 추가하고자 할 때 익스텐션을 사용한다. 따로 상속을 받지 않아도 되며, 구조체와 열거형에도 기능을 추가할 수 있으므로 익스텐션은 매우 편리한 기능이다.
+익스텐션은 모든 타입에 적용할 수 있다. 모든 타입이라 함은 구조체, 열거형, 클래스, 프로토콜, 제네릭 타입 등을 뜻한다. 즉, 익스텐션을 통해 모든 타입에 연산 프로퍼티, 메서드, 이니셜라이저, 서브스크립트, 중첩 데이터 타입 등을 추가할 수 있다. 더불어 익스텐션은 프로토콜과 함께 사용하면 굉장히 강력한 기능을 선사한다. 이 부분과 관련해 프로토콜 중심 프로그래밍(Protocol Oriented Programming)에 대해 더 알아보는 것을 추천
+*/
+/* 정의
+- extension 키워드를 사용하여 정의
+
+ extension 확장할 타입 이름 {
+    /* 타입에 추가될 새로운 기능 구현 */
+}
+
+- 익스텐션은 기존에 존재하는 타입이 추가적으로 다른 프로토콜을 채택할 수 있도록 확장할 수도 있다. 이런 경우에는 클래스나 구조체에서 사용하던 것과 똑같은 방법으로 프로토콜 이름을 나열해준다.
+
+extension 확장할 타입 이름: 프로토콜1, 프로토콜2, 프로토콜3... {
+    /* 프로토콜 요구사항 구현 */
+}
+ 
+- 스위프트 라이브러리를 살펴보면 실제로 익스텐션이 굉장히 많이 사용되고 있음을 알 수 있다.
+- Double 타입에는 수많은 프로퍼티와 메서드, 이니셜라이저가 정의되어 있으며 수많은 프로토콜을 채택하고 있을 것이라고 예상되지만, 실제로 Double 타입의 정의를 살펴보면 그 모든것이 다 정의되어 있지는 않다. 그러면 Double 타입이 채택하고 준수해야 하는 수많은 프로토콜은 어디로 갔을까? 어디에서 채택하고 어디에서 준수하도록 정의되어 있을까? 당연히 답은 익스텐션이다. 이처럼 스위프트 표준 라이브러리 타입의 기능은 대부분 익스텐션으로 구현되어 있다. Double 외에도 다른 타입들의 정의와 익스텐션을 찾아보면 더 많은 예를 보실 수 있다. 꼭 한 번 찾아보기!  
+*/
+
+/*구현
+<<연산 프로퍼티 추가>>
+- 아래 익스텐션은 Int 타입에 두 개의 연산 프로퍼티를 추가한 것이다.
+- Int 타입의 인스턴스가 홀수인지 짝수인지 판별하여 Bool타입으로 알려주는 연산 프로퍼티이다.
+- 익스텐션으로 Int 타입에 추가해준 연산 프로퍼티는 Int 타입의 어떤 인스턴스에도 사용이 가능
+- 인스턴스 연산 프로퍼티를 추가할 수도 있으며, static 키워드를 사용하여 타입 연산 프로퍼티도 추가할 수 있다.
+*/
+extension Int {
+    var isEven: Bool {
+        return self % 2 == 0
+    }
+    var isOdd: Bool {
+        return self % 2 == 1
+    }
+}
+
+print(1.isEven) // false
+print(2.isEven) // true
+print(1.isOdd)  // true
+print(2.isOdd)  // false
+
+var number: Int = 3
+print(number.isEven) // false
+print(number.isOdd) // true
+
+number = 2
+print(number.isEven) // true
+print(number.isOdd) // false
+
+/* 메서드 추가
+- 메서드 익스텐션을 통해 Int 타입에 인스턴스 메서드인 multiply(by:) 메서드를 추가
+- 여러 기능을 여러 익스텐션 블록으로 나눠서 구현해도 전혀 문제가 없다.
+- 관련된 기능별로 하나의 익스텐션 블록에 묶어주는 것도 좋다.
+*/
+extension Int {
+    func multiply(by n: Int) -> Int {
+        return self * n
+    }
+}
+print(3.multiply(by: 2))  // 6
+print(4.multiply(by: 5))  // 20
+
+number = 3
+print(number.multiply(by: 2))   // 6
+print(number.multiply(by: 3))   // 9
+
+/* 이니셜라이저 추가
+- 인스턴스를 초기화(이니셜라이즈)할 때 인스턴스 초기화에 필요한 다양한 데이터를 전달받을 수 있도록 여러 종류의 이니셜라이저를 만들 수 있다. 타입의 정의부에 이니셜라이저를 추가하지 않더라도 익스텐션을 통해 이니셜라이저를 추가할 수 있다.
+- 익스텐션으로 클래스 타입에 편의 이니셜라이저는 추가할 수 있지만, 지정 이니셜라이저는 추가할 수 없다. 지정 이니셜라이저와 디이니셜라이저는 반드시 클래스 타입의 구현부에 위치해야 한다(값 타입은 상관없다).
+ */
+extension String {
+    init(int: Int) {
+        self = "\(int)"
+    }
+    
+    init(double: Double) {
+        self = "\(double)"
+    }
+}
+
+let stringFromInt: String = String(int: 100)
+// "100"
+
+let stringFromDouble: String = String(double: 100.0)
+// "100.0"
+// ** 익스텐션 활용하면 다양하고 강력한 기능을 구현할 수 있지만, 해당 타입에 적합한 익스텐션을 구현하도록 주의해야합니다.
+
+
+/* 오류 처리
+- 스위프트에서 오류(Error)는 Error라는 프로토콜을 준수하는 타입의 값을 통해 표현
+- Error 프로토콜은 사실상 요구사항이 없는 빈 프로토콜일 뿐이지만, 오류를 표현하기 위한 타입(주로 열거형)은 이 프로토콜을 채택
+- 스위프트의 열거형은 오류의 종류를 나타내기에 아주 적합한 기능
+- 연관 값을 통해 오류에 관한 부가 정보를 제공할 수도 있다.
+*/
+
+// 오류 표현 : Error 프로토콜과 (주로)열거형을 통해서 오류를 표현
+// 자판기 동작 오류의 종류를 표현한 VendingMachineError 열거형
+enum VendingMachineError: Error {
+    case invalidInput
+    case insufficientFunds(moneyNeeded: Int)
+    case outOfStock
+}
+
+/* 함수에서 발생한 오류 던지기
+- 자판기 동작 도중 발생한 오류를 던지는 메서드를 구현
+- 오류 발생의 여지가 있는 메서드는 throws를 사용하여 오류를 내포하는 함수임을 표시
+*/
+class VendingMachine {
+    let itemPrice: Int = 100
+    var itemCount: Int = 5
+    var deposited: Int = 0
+    
+    // 돈 받기 메서드
+    func receiveMoney(_ money: Int) throws {
+        
+        // 입력한 돈이 0이하면 오류
+        guard money > 0 else {
+            throw VendingMachineError.invalidInput
+        }
+        
+        // 오류가 없으면 정상처리
+        self.deposited += money
+        print("\(money)원 받음")
+    }
+    
+    // 물건 팔기 메서드
+    func vend(numberOfItems numberOfItemsToVend: Int) throws -> String {
+        
+        // 원하는 아이템의 수량이 잘못 입력되었으면 오류
+        guard numberOfItemsToVend > 0 else {
+            throw VendingMachineError.invalidInput
+        }
+        
+        // 구매하려는 수량보다 미리 넣어둔 돈이 적으면 오류
+        guard numberOfItemsToVend * itemPrice <= deposited else {
+            let moneyNeeded: Int
+            moneyNeeded = numberOfItemsToVend * itemPrice - deposited
+            
+            throw VendingMachineError.insufficientFunds(moneyNeeded: moneyNeeded)
+        }
+        
+        // 구매하려는 수량보다 요구하는 수량이 많으면 오류
+        guard itemCount >= numberOfItemsToVend else {
+            throw VendingMachineError.outOfStock
+        }
+        
+        // 오류가 없으면 정상처리
+        let totalPrice = numberOfItemsToVend * itemPrice
+        
+        self.deposited -= totalPrice
+        self.itemCount -= numberOfItemsToVend
+        
+        return "\(numberOfItemsToVend)개 제공함"
+    }
+}
+
+// 자판기 인스턴스
+let machine: VendingMachine = VendingMachine()
+
+// 판매 결과를 전달받을 변수
+var result_error: String?
+
+/* 오류 처리
+- 오류를 던질 수도 있지만 오류가 던져지는 것에 대비하여 던져진 오류를 처리하기 위한 코드도 작성해야 한다. 예를 들어 던져진 오류가 무엇인지 판단하여 다시 문제를 해결한다든지, 다른 방법으로 시도해 본다든지, 사용자에게 오류를 알리고 사용자에게 선택 권한을 넘겨주어 다음에 어떤 동작을 하게 할 것인지 결정하도록 유도하는 등의 코드를 작성해야 한다.
+- 오류발생의 여지가 있는 throws 함수(메서드)는 try를 사용하여 호출해야한다. try와 do-catch, try?와 try! 등에 대해 알아보자
+*/
+
+/* do-catch
+- 오류발생의 여지가 있는 throws 함수(메서드)는 do-catch 구문을 활용하여 오류발생에 대비한다.
+- 가장 정석적인 방법으로 모든 오류 케이스에 대응한다
+ */
+do {
+    try machine.receiveMoney(0)
+} catch VendingMachineError.invalidInput {
+    print("입력이 잘못되었습니다")
+} catch VendingMachineError.insufficientFunds(let moneyNeeded) {
+    print("\(moneyNeeded)원이 부족합니다")
+} catch VendingMachineError.outOfStock {
+    print("수량이 부족합니다")
+} // 입력이 잘못되었습니다
+// 하나의 catch 블럭에서 switch 구문을 사용하여 오류를 분류해본다. 굳이 위의 것과 크게 다를 것이 없다.
+do {
+    try machine.receiveMoney(300)
+} catch /*(let error)*/ {
+    
+    switch error {
+    case VendingMachineError.invalidInput:
+        print("입력이 잘못되었습니다")
+    case VendingMachineError.insufficientFunds(let moneyNeeded):
+        print("\(moneyNeeded)원이 부족합니다")
+    case VendingMachineError.outOfStock:
+        print("수량이 부족합니다")
+    default:
+        print("알수없는 오류 \(error)")
+    }
+} // 300원 받음
+// 딱히 케이스별로 오류처리 할 필요가 없으면 catch 구문 내부를 간략화해도 무방
+do {
+    result_error = try machine.vend(numberOfItems: 4)
+} catch {
+    print(error)
+} // insufficientFunds(100)﻿
+
+// 케이스별로 오류처리 할 필요가 없으면 do 구문만 써도 무방
+do {
+    result_error = try machine.vend(numberOfItems: 4)
+}
+
+/* try? 와 try!
+1. try?
+- 별도의 오류처리 결과를 통보받지 않고 오류가 발생했으면 결과값을 nil로 돌려받을 수 있다.
+- 정상동작 후에는 옵셔널 타입으로 정상 반환값을 돌려 받는다.
+ */
+result_error = try? machine.vend(numberOfItems: 2)
+result_error // Optional("2개 제공함")
+
+result_error = try? machine.vend(numberOfItems: 2)
+result_error // nil
+
+/*
+2. try!
+- 오류가 발생하지 않을 것이라는 강력한 확신을 가질 때 try!를 사용하면 정상동작 후에 바로 결과값을 돌려받는다.
+- 오류가 발생하면 런타임 오류가 발생하여 애플리케이션 동작이 중지
+ */
+result_error = try! machine.vend(numberOfItems: 1)
+result_error // 1개 제공함
+
+//result = try! machine.vend(numberOfItems: 1)
+// 런타임 오류 발생!
+
+/* 더 알아보기: 추가적으로 더 알아보면 좋은 개념
+ rethrows :
+ defer :
+*/
+
+/* 고차 함수
+- 고차 함수(Higher-order function)는 '다른 함수를 전달인자로 받거나 함수실행의 결과를 함수로 반환하는 함수
+- 스위프트의 함수(클로저)는 일급시민(일급객체)이기 때문에 함수의 전달인자로 전달할 수 있으며, 함수의 결과값으로 반환할 수 있다
+- 이번 파트에서는 스위프트 표준라이브러리에서 제공하는 유용한 고차함수[map, filter, reduce]에 대해 알아본다
+- map, filter, reduce 함수는 스위프트 표준 라이브러리의 컨테이너 타입(Array, Set, Dictionary 등)에 구현되어 있다
+*/
+
+// map : map함수는 컨테이너 내부의 기존 데이터를 변형(transform)하여 새로운 컨테이너를 생성
+
+// 변형하고자 하는 numbers와 변형 결과를 받을 doubledNumbers, strings
+let numbers: [Int] = [0, 1, 2, 3, 4]
+var doubledNumbers: [Int]
+var stringss: [String]
+// 기존의 for 구문 사용
+    doubledNumbers = [Int]()
+strings = [String]()
+
+for number in numbers {
+    doubledNumbers.append(number * 2)
+    strings.append("\(number)")
+}
+
+print(doubledNumbers) // [0, 2, 4, 6, 8]
+print(strings) // ["0", "1", "2", "3", "4"]
+
+// map 메서드 사용
+// numbers의 각 요소를 2배하여 새로운 배열 반환
+doubledNumbers = numbers.map({ (number: Int) -> Int in
+    return number * 2
+})
+
+// numbers의 각 요소를 문자열로 변환하여 새로운 배열 반환
+strings = numbers.map({ (number: Int) -> String in
+    return "\(number)"
+})
+
+print(doubledNumbers) // [0, 2, 4, 6, 8]
+print(strings) // ["0", "1", "2", "3", "4"]
+
+// 매개변수, 반환 타입, 반환 키워드(return) 생략, 후행 클로저
+doubledNumbers = numbers.map { $0 * 2 }
+print(doubledNumbers) // [0, 2, 4, 6, 8]
+
+// filter : filter함수는 컨테이너 내부의 값을 걸러서 새로운 컨테이너로 추출
+
+// 기존의 for 구문 사용
+
+// 변수 사용에 주목
+var filtered: [Int] = [Int]()
+
+for number in numbers {
+    if number % 2 == 0 {
+        filtered.append(number)
+    }
+}
+
+print(filtered) // [0, 2, 4]
+
+// filter 메서드 사용
+// numbers의 요소 중 짝수를 걸러내어 새로운 배열로 반환
+let evenNumbers: [Int] = numbers.filter { (number: Int) -> Bool in
+    return number % 2 == 0
+}
+print(evenNumbers) // [0, 2, 4]
+
+// 매개변수, 반환 타입, 반환 키워드(return) 생략, 후행 클로저
+let oddNumbers: [Int] = numbers.filter {
+    $0 % 2 != 0
+}
+print(oddNumbers) // [1, 3]
+
+// reduce : reduce함수는 컨테이너 내부의 콘텐츠를 하나로 통합
+
+// 통합하고자 하는 someNumbers
+let someNumbers: [Int] = [2, 8, 15]
+// 기존의 for 구문 사용
+// 변수 사용에 주목
+var result_filter: Int = 0
+
+// someNumbers의 모든 요소를 더합니다
+for number in someNumbers {
+    result_filter += number
+}
+
+print(result) // 25
+
+// reduce 메서드 사용
+// 초깃값이 0이고 someNumbers 내부의 모든 값을 더합니다.
+let sum_reduce: Int = someNumbers.reduce(0, { (first: Int, second: Int) -> Int in
+    //print("\(first) + \(second)") //어떻게 동작하는지 확인해보세요
+    return first + second
+})
+
+print(sum_reduce)  // 25
+
+// 초깃값이 0이고 someNumbers 내부의 모든 값을 뺍니다.
+var subtract: Int = someNumbers.reduce(0, { (first: Int, second: Int) -> Int in
+    //print("\(first) - \(second)") //어떻게 동작하는지 확인해보세요
+    return first - second
+})
+
+print(subtract) // -25
+
+// 초깃값이 3이고 someNumbers 내부의 모든 값을 더합니다.
+let sumFromThree = someNumbers.reduce(3) { $0 + $1 }
+
+print(sumFromThree) // 28
+
+/* 추가적으로 알아가여 할 문법과 개념들
+ - 제네릭 : (Generics)
+ - 서브스크립트 : (Subscript)
+ - 접근수준 : (Access Control)
+ - ARC : (Autumatic Referenxe Counting)
+ - 중첩타입 : (Nested Types)
+ - 사용자정의 연산자 : (Custom Operators)
 */
